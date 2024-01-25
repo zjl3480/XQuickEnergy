@@ -181,6 +181,11 @@ public class AntFarmRpcCall {
     }
 
     public static String initFarmGame(String gameType) {
+        if ("flyGame".equals(gameType)) {
+            return RpcUtil.request("com.alipay.antfarm.initFarmGame",
+                    "[{\"gameType\":\"flyGame\",\"requestType\":\"RPC\",\"sceneCode\":\"FLAYGAME\"," +
+                            "\"source\":\"FARM_game_yundongfly\",\"toolTypes\":\"ACCELERATETOOL,SHARETOOL,NONE\",\"version\":\"\"}]");
+        }
         return RpcUtil.request("com.alipay.antfarm.initFarmGame",
                 "[{\"gameType\":\"" + gameType
                         + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"toolTypes\":\"STEALTOOL,ACCELERATETOOL,SHARETOOL\"}]");
@@ -189,9 +194,10 @@ public class AntFarmRpcCall {
     public static int RandomScore(String str) {
         if ("starGame".equals(str)) {
             return RandomUtils.nextInt(200, 300);
-
         } else if ("jumpGame".equals(str)) {
             return RandomUtils.nextInt(150, 170) * 10;
+        } else if ("flyGame".equals(str)) {
+            return RandomUtils.nextInt(5000, 8000);
         } else {
             return 210;
         }
@@ -201,6 +207,14 @@ public class AntFarmRpcCall {
         String uuid = getUuid();
         String md5String = getMD5(uuid);
         int score = RandomScore(gameType);
+        if ("flyGame".equals(gameType)) {
+            int foodCount = score / 50;
+            return RpcUtil.request("com.alipay.antfarm.recordFarmGame",
+                    "[{\"foodCount\":" + foodCount + ",\"gameType\":\"flyGame\",\"md5\":\"" + md5String
+                            + "\",\"requestType\":\"RPC\",\"sceneCode\":\"FLAYGAME\",\"score\":" + score
+                            + ",\"source\":\"ANTFARM\",\"toolTypes\":\"ACCELERATETOOL,SHARETOOL,NONE\",\"uuid\":\"" + uuid
+                            + "\",\"version\":\"\"}]");
+        }
         return RpcUtil.request("com.alipay.antfarm.recordFarmGame",
                 "[{\"gameType\":\"" + gameType + "\",\"md5\":\"" + md5String
                         + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"score\":" + score
@@ -354,5 +368,23 @@ public class AntFarmRpcCall {
         return RpcUtil.request("com.alipay.antfarm.diaryTietie",
                 "[{\"diaryDate\":\"" + diaryDate + "\",\"requestType\":\"NORMAL\",\"roleId\":\"" + roleId
                         + "\",\"sceneCode\":\"DIARY\",\"source\":\"antfarm_icon\"}]");
+    }
+
+    public static String visitAnimal() {
+        return RpcUtil.request("com.alipay.antfarm.visitAnimal",
+                "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"version\":\"" + VERSION +
+                        "\"}]");
+    }
+
+    public static String feedFriendAnimalVisit(String friendFarmId) {
+        return RpcUtil.request("com.alipay.antfarm.feedFriendAnimal",
+                "[{\"friendFarmId\":\"" + friendFarmId + "\",\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\"," +
+                        "\"source\":\"visitChicken\",\"version\":\"" + VERSION + "\"}]");
+    }
+
+    public static String visitAnimalSendPrize(String token) {
+        return RpcUtil.request("com.alipay.antfarm.visitAnimalSendPrize",
+                "[{\"requestType\":\"NORMAL\",\"sceneCode\":\"ANTFARM\",\"source\":\"H5\",\"token\":\"" + token +
+                        "\",\"version\":\"" + VERSION + "\"}]");
     }
 }
